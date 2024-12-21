@@ -1,12 +1,20 @@
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Vector;
 
 class editMenu {
     editMenu(){
 
         Border panelborder=BorderFactory.createLineBorder(Color.blue,2);
         Font buttonFont = new Font("Calibri", Font.BOLD, 20);
+        Font tableFont = new Font("Calibri", Font.PLAIN, 18);
 
 
         JLabel title=new JLabel("Menu");
@@ -29,16 +37,20 @@ class editMenu {
 
         JButton add1=new JButton("Add item");
         add1.setFont(buttonFont);
+        add1.setPreferredSize(new Dimension(150,30));
 
 
         JButton delete=new JButton("Delete item");
         delete.setFont(buttonFont);
+        delete.setPreferredSize(new Dimension(150,30));
 
         JButton update=new JButton("Update price");
         update.setFont(buttonFont);
+        update.setPreferredSize(new Dimension(150,30));
 
         JButton addcat=new JButton("Add category");
         addcat.setFont(buttonFont);
+        addcat.setPreferredSize(new Dimension(150,30));
 
 
 
@@ -59,6 +71,35 @@ class editMenu {
         headingPanel.setBorder(panelborder);
         headingPanel.setPreferredSize(new Dimension(200,70));
 
+
+        JPanel catButton=new JPanel(new FlowLayout(FlowLayout.LEADING,10,10));
+        catButton.setBorder(panelborder);
+        catButton.setPreferredSize(new Dimension(200,100));
+
+        Vector<JButton> b=new Vector<>();
+
+
+
+        String url = "jdbc:mysql://localhost:3306/restro";
+        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+            String sql="select * from category order by id";
+            try(PreparedStatement pst=con.prepareStatement(sql)){
+                ResultSet rs= pst.executeQuery();
+
+                while(rs.next()){
+                   String s1=rs.getString("name");
+                   JButton b1=new JButton(s1.toUpperCase());
+                   b1.setFont(buttonFont);
+                   b.add(b1);
+
+                   catButton.add(b1);
+
+                }
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(null,e.getMessage());
+        }
+
         JButton button1=new JButton("Starters");
         button1.setFont(buttonFont);
         JButton button2=new JButton("Main Course");
@@ -69,28 +110,11 @@ class editMenu {
         buttonGroup.add(button1);
         buttonGroup.add(button2);
 
-        JPanel catButton=new JPanel(new FlowLayout(FlowLayout.LEADING,10,10));
-        catButton.setBorder(panelborder);
-        catButton.setPreferredSize(new Dimension(200,100));
-        catButton.add(button1);
-        catButton.add(button2);
 
-        JPanel gridPanel1=new JPanel();
-        JPanel gridPanel2=new JPanel();
-        JPanel gridPanel3=new JPanel();
-        JPanel gridPanel4=new JPanel();
 
-        gridPanel1.setBorder(panelborder);
-        gridPanel2.setBorder(panelborder);
-        gridPanel3.setBorder(panelborder);
-        gridPanel4.setBorder(panelborder);
 
-        gridPanel1.setBackground(Color.yellow);
-        gridPanel2.setBackground(Color.yellow);
-        gridPanel3.setBackground(Color.yellow);
-        gridPanel4.setBackground(Color.yellow);
 
-        JPanel dataPanel=new JPanel(new GridLayout(2,2));
+        JPanel dataPanel=new JPanel(new BorderLayout());
         dataPanel.setBorder(panelborder);
         dataPanel.setPreferredSize(new Dimension(100,700));
 //        dataPanel.add(gridPanel1);
@@ -99,10 +123,27 @@ class editMenu {
 //        dataPanel.add(gridPanel4);
 
 
+
+
+        String[] columnNames={"Id","Name","Price"};
+
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+        JTable table = new JTable(tableModel);
+        table.setFont(tableFont);
+        table.setRowHeight(30);
+        table.getTableHeader().setFont(new Font("Calibri", Font.BOLD, 18));
+        table.getTableHeader().setBackground(new Color(0, 102, 204));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setGridColor(new Color(224, 224, 224));
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(600,400));
+        dataPanel.add(scrollPane,BorderLayout.WEST);
+
         JPanel container=new JPanel(new BorderLayout());
         container.add(headingPanel,BorderLayout.NORTH);
         container.add(catButton,BorderLayout.NORTH);
-        container.add(dataPanel,BorderLayout.SOUTH);
+        container.add(dataPanel,BorderLayout.CENTER);
+
 
 
 
@@ -111,14 +152,78 @@ class editMenu {
         frame.add(buttonPanel,BorderLayout.WEST);
         frame.add(container,BorderLayout.CENTER);
 
+        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+            String sql="select * from menu where category=? order by id";
+            try(PreparedStatement pst=con.prepareStatement(sql)){
+                String s1=b.get(0).getText().toLowerCase();
+                pst.setString(1,s1);
+                ResultSet rs= pst.executeQuery();
+
+                while (rs.next()){
+                    double id=rs.getDouble("id");
+                    String name=rs.getString("name");
+                    double price=rs.getDouble("price");
+
+
+                    tableModel.addRow(new Object[]{(int)id,name,price});
+                }
+
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(null,e.getMessage());
+        }
+
+
+
+
         add1.addActionListener(
                 a->{
-                  new addItem();
 
+new addItem();
+frame.dispose();
 
 
                 }
+
         );
+
+        addcat.addActionListener(
+                a->{
+                   new AddCategory();
+                   frame.dispose();
+                }
+        );
+
+        for (JButton ditto:b){
+            ditto.addActionListener(
+                    a->{
+                       String s1= ditto.getText().toLowerCase();
+                       tableModel.setRowCount(0);
+
+                        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                            String sql="select * from menu where category=? order by id";
+                            try(PreparedStatement pst=con.prepareStatement(sql)){
+                                pst.setString(1,s1);
+
+                                ResultSet rs= pst.executeQuery();
+
+                                while (rs.next()){
+                                 double id=rs.getDouble("id");
+                                 String name=rs.getString("name");
+                                 double price=rs.getDouble("price");
+
+
+                                    tableModel.addRow(new Object[]{(int)id,name,price});
+                                }
+
+                            }
+                        }catch (Exception e){
+                            JOptionPane.showMessageDialog(null,e.getMessage());
+                        }
+
+                    }
+            );
+        }
     }
 
     public static void main(String[] args) {
