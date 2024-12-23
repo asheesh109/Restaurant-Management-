@@ -10,7 +10,7 @@ import java.util.Vector;
 class editMenu {
     editMenu(){
 
-        Border panelborder=BorderFactory.createLineBorder(Color.blue,2);
+        Border panelborder=BorderFactory.createLineBorder(Color.orange,2);
         Font buttonFont = new Font("Calibri", Font.BOLD, 20);
         Font tableFont = new Font("Calibri", Font.PLAIN, 18);
 
@@ -20,7 +20,7 @@ class editMenu {
 
         JFrame frame=new JFrame("Menu");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize()));
+        frame.setSize(1000,700);
         frame.setVisible(true);
         frame.setLayout(new BorderLayout());
         frame.setLocationRelativeTo(null);
@@ -79,7 +79,7 @@ class editMenu {
 
 
         String url = "jdbc:mysql://localhost:3306/restro";
-        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
             String sql="select * from category order by id";
             try(PreparedStatement pst=con.prepareStatement(sql)){
                 ResultSet rs= pst.executeQuery();
@@ -130,7 +130,7 @@ class editMenu {
         table.setFont(tableFont);
         table.setRowHeight(30);
         table.getTableHeader().setFont(new Font("Calibri", Font.BOLD, 18));
-        table.getTableHeader().setBackground(new Color(0, 102, 204));
+        table.getTableHeader().setBackground(Color.orange);
         table.getTableHeader().setForeground(Color.WHITE);
         table.setGridColor(new Color(224, 224, 224));
         JScrollPane scrollPane = new JScrollPane(table);
@@ -150,7 +150,7 @@ class editMenu {
         frame.add(buttonPanel,BorderLayout.WEST);
         frame.add(container,BorderLayout.CENTER);
 
-        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
             String sql="select * from menu where category=? order by id";
             try(PreparedStatement pst=con.prepareStatement(sql)){
                 String s1=b.get(0).getText().toLowerCase();
@@ -198,7 +198,7 @@ frame.dispose();
                        String s1= ditto.getText().toLowerCase();
                        tableModel.setRowCount(0);
 
-                        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
                             String sql="select * from menu where category=? order by id";
                             try(PreparedStatement pst=con.prepareStatement(sql)){
                                 pst.setString(1,s1);
