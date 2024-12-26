@@ -380,7 +380,12 @@ class Customer {
 
         for (JButton ditto : b) {
 
+
             ditto.addActionListener(a -> {
+                if (!h.isEmpty()){
+                JOptionPane.showMessageDialog(null,"order all items in this category first");
+                return;
+            }
                 ditto.setBackground(new Color(157, 77, 233));
                 for (JButton bitto:b){
                     if(bitto!=ditto){
