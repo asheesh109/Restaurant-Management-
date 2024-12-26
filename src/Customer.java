@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 class Customer {
-   static double tableno=10;
+  final static int tableno=19;
    HashMap<String,Integer> h=new HashMap<String,Integer>();
     Customer(){
         Border panelborder=BorderFactory.createLineBorder(new Color(69, 10, 168, 196),1);
@@ -235,7 +235,7 @@ class Customer {
                     bpanel.add(quantity);
                     bpanel.add(remove);
 
-                    String itemKey =  "starter_" + names;
+                    String itemKey = names;
                     int savedQuantity = h.getOrDefault(itemKey, 0);
                     if(savedQuantity==0){
                         quantity.setVisible(false);
@@ -419,7 +419,7 @@ class Customer {
                             bpanel.add(quantity);
                             bpanel.add(remove);
 
-                            String itemKey = s1 + "_" + names;
+                            String itemKey = names;
                             int savedQuantity = h.getOrDefault(itemKey, 0);
                             if(savedQuantity==0){
                                 quantity.setVisible(false);
@@ -570,30 +570,59 @@ class Customer {
 //            }
 //        }
 
+order.addActionListener(
+        a->{
+            if(h.isEmpty()){
+                JOptionPane.showMessageDialog(null,"No items Selected");
+            }
+            else{
+                try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                                              String querry="insert into currentorders(tableno,name,quantity,status) values(?,?,?,?)";
+                                               try(PreparedStatement pst1=con1.prepareStatement(querry)){
+                                                 for (HashMap.Entry<String,Integer> ditto:h.entrySet()){
+                                                     String s1=ditto.getKey();
+                                                     int quantity=ditto.getValue();
+                                                     if(quantity>0){
+                                                         pst1.setInt(1,tableno);
+                                                         pst1.setString(2,s1);
+                                                         pst1.setInt(3,quantity);
+                                                         pst1.setString(4,"ordered");
+                                                         pst1.executeUpdate();
+                                                     }
+                                                 }
+                                                 JOptionPane.showMessageDialog(null,"Ordered Sucessful");
+
+
+                                               }
+                                           }catch (Exception e){
+                                               JOptionPane.showMessageDialog(null,e.getMessage());
+                                           }
+            }
+        }
+);
 
 
 
 
 
 
-
-        frame.addWindowListener(
-                new WindowAdapter() {
-                    @Override
-                    public void windowClosing(WindowEvent e) {
-                        try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
-                            String querry="Drop table currentorders";
-                            try(PreparedStatement pst1=con1.prepareStatement(querry)){
-
-
-
-                            }
-                        }catch (Exception e1){
-                            JOptionPane.showMessageDialog(null,e1.getMessage());
-                        }
-                    }
-                }
-        );
+//        frame.addWindowListener(
+//                new WindowAdapter() {
+//                    @Override
+//                    public void windowClosing(WindowEvent e) {
+//                        try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+//                            String querry="Drop table currentorders";
+//                            try(PreparedStatement pst1=con1.prepareStatement(querry)){
+//
+//
+//
+//                            }
+//                        }catch (Exception e1){
+//                            JOptionPane.showMessageDialog(null,e1.getMessage());
+//                        }
+//                    }
+//                }
+//        );
 
 
         frame.setVisible(true);
