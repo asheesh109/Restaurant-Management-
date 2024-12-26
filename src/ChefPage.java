@@ -3,8 +3,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.sql.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ChefPage {
+    static Timestamp lastfetch = new Timestamp(System.currentTimeMillis());
 
     public ChefPage() {
 
@@ -67,11 +70,28 @@ public class ChefPage {
                     double quantity = rs.getDouble("quantity");
                     String status = rs.getString("status");
                     tableModel.addRow(new Object[]{name, quantity, status, ""});
+
                 }
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
+
+        java.util.Timer timer = new Timer();
+        final Timestamp[] lastfetch = {new Timestamp(System.currentTimeMillis())};
+
+
+        // Schedule the task to run every 1 second
+//        timer.scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//
+//
+//
+//            }
+//        }, 0, 1000);
+
+
 
 
         frame.setVisible(true);

@@ -14,6 +14,7 @@ import java.util.Vector;
 class Customer {
   final static int tableno=19;
    HashMap<String,Integer> h=new HashMap<String,Integer>();
+   HashMap<String,JPanel> h1=new HashMap<String,JPanel>();
     Customer(){
         Border panelborder=BorderFactory.createLineBorder(new Color(69, 10, 168, 196),1);
 
@@ -164,7 +165,11 @@ class Customer {
         JPanel orderPanel=new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton order=new JButton("Order");
         order.setFont(f2);
+        JButton reset=new JButton("Reset");
+        reset.setFont(f2);
         orderPanel.add(order);
+        orderPanel.add(reset);
+
 
 
         selected.add(head,BorderLayout.NORTH);
@@ -227,15 +232,19 @@ class Customer {
                     npanel.add(n);
                     npanel.setPreferredSize(new Dimension(300, 20));
 
+
+                    String itemKey = names;
+
                     JPanel ppanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
                     ppanel.add(p);
                     ppanel.setPreferredSize(new Dimension(260, 20));
-                    JPanel bpanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+                    JPanel bpanel = h1.getOrDefault(itemKey,new JPanel(new FlowLayout(FlowLayout.LEADING)));
+
                     bpanel.add(add);
                     bpanel.add(quantity);
                     bpanel.add(remove);
 
-                    String itemKey = names;
+
                     int savedQuantity = h.getOrDefault(itemKey, 0);
                     if(savedQuantity==0){
                         quantity.setVisible(false);
@@ -265,6 +274,7 @@ class Customer {
 
                                 int d=Integer.parseInt(quantity.getText());
                                 h.put(itemKey,d+1);
+                                h1.put(itemKey,bpanel);
                                 if(d==0){
                                     quantity.setText(Integer.toString(d+1));
                                     quantity.setVisible(true);
@@ -576,6 +586,7 @@ order.addActionListener(
                 JOptionPane.showMessageDialog(null,"No items Selected");
             }
             else{
+
                 try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
                                               String querry="insert into currentorders(tableno,name,quantity,status) values(?,?,?,?)";
                                                try(PreparedStatement pst1=con1.prepareStatement(querry)){
@@ -597,6 +608,14 @@ order.addActionListener(
                                            }catch (Exception e){
                                                JOptionPane.showMessageDialog(null,e.getMessage());
                                            }
+                h.clear();
+                selectedItemsData.removeAll();
+                selectedItemsData.revalidate();
+                selectedItemsData.repaint();
+                for (JButton ditto:b){
+                    ditto.doClick();
+                }
+                b.get(0).doClick();
             }
         }
 );
@@ -624,6 +643,12 @@ order.addActionListener(
 //                }
 //        );
 
+        reset.addActionListener(
+                a->{
+                    new Customer();
+                    frame.dispose();
+                }
+        );
 
         frame.setVisible(true);
     }
