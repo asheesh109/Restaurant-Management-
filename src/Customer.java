@@ -1,6 +1,8 @@
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.lang.management.BufferPoolMXBean;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,7 +11,7 @@ import java.sql.ResultSet;
 import java.util.Vector;
 
 class Customer {
-   static int i=0;
+   static double tableno=10;
     Customer(){
         Border panelborder=BorderFactory.createLineBorder(new Color(69, 10, 168, 196),1);
 
@@ -160,9 +162,15 @@ class Customer {
                     JLabel n = new JLabel(names.toUpperCase());
                     JLabel p = new JLabel(Double.toString(prices) + " /-");
                     JButton add = new JButton("+");
+                    JLabel quantity=new JLabel("0");
+                    JButton remove=new JButton("-");
                     p.setFont(f2);
                     n.setFont(f2);
                     add.setFont(f2);
+                    quantity.setFont(f2);
+                    remove.setFont(f2);
+                    quantity.setVisible(false);
+                    remove.setVisible(false);
 
 
 
@@ -178,6 +186,41 @@ class Customer {
                     ppanel.setPreferredSize(new Dimension(260, 20));
                     JPanel bpanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
                     bpanel.add(add);
+                    bpanel.add(quantity);
+                    bpanel.add(remove);
+
+
+                    add.addActionListener(
+                            z->{
+                                int d=Integer.parseInt(quantity.getText());
+                                if(d==0){
+                                    quantity.setText(Integer.toString(d+1));
+                                    quantity.setVisible(true);
+                                    remove.setVisible(true);
+                                    bpanel.setBorder(panelborder);
+                                }
+                                else{
+                                    quantity.setText(Integer.toString(d+1));
+                                }
+                            }
+                    );
+
+                    remove.addActionListener(
+                            y->{
+                                int d=Integer.parseInt(quantity.getText());
+                                d--;
+                                if(d==0){
+                                    quantity.setText(Integer.toString(0));
+                                    quantity.setVisible(false);
+                                    remove.setVisible(false);
+                                    bpanel.setBorder(null);
+
+                                }
+                                else{
+                                    quantity.setText(Integer.toString(d));
+                                }
+                            }
+                    );
 
 //                  i.name=npanel;
 //                  i.price=ppanel;
@@ -190,7 +233,7 @@ class Customer {
                     row.add(bpanel);
                     row.setFont(f2);
                     row.setBorder(panelborder);
-                    row.setMaximumSize(new Dimension(750,50));
+                    row.setMaximumSize(new Dimension(750,60));
                     menubox.add(row);
                     menubox.add(Box.createVerticalStrut(10));
 
@@ -207,7 +250,7 @@ class Customer {
         for (JButton ditto : b) {
 
             ditto.addActionListener(a -> {
-                ditto.setBackground(new Color(174, 220, 213));
+                ditto.setBackground(new Color(157, 77, 233));
                 for (JButton bitto:b){
                     if(bitto!=ditto){
                         bitto.setBackground(new Color(228, 240, 234));
@@ -231,12 +274,18 @@ class Customer {
                             JLabel n = new JLabel(names.toUpperCase());
                             JLabel p = new JLabel(Double.toString(prices) + " /-");
                             JButton add = new JButton("+");
+                            JLabel quantity=new JLabel("0");
+                            JButton remove=new JButton("-");
 
 
 
                             p.setFont(f2);
                             n.setFont(f2);
                             add.setFont(f2);
+                            quantity.setFont(f2);
+                            remove.setFont(f2);
+                            quantity.setVisible(false);
+                            remove.setVisible(false);
 
                             JPanel npanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
                             npanel.add(n);
@@ -247,14 +296,69 @@ class Customer {
                             ppanel.setPreferredSize(new Dimension(260, 20));
                             JPanel bpanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
                             bpanel.add(add);
-                            isFirstClick.add(true);
+                            bpanel.add(quantity);
+                            bpanel.add(remove);
+
+
 
 
                             add.addActionListener(
                                     z->{
-                                       if(isFirstClick.get(i)){
-                                           
+                                        int d=Integer.parseInt(quantity.getText());
+                                       if(d==0){
+                                        quantity.setText(Integer.toString(d+1));
+                                        quantity.setVisible(true);
+                                        remove.setVisible(true);
+                                           bpanel.setBorder(panelborder);
+
+
+                                           try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                                               String querry="insert into currentorders(tableno,name,quantity,status) values(?,?,?,?)";
+                                               try(PreparedStatement pst1=con1.prepareStatement(querry)){
+                                                   pst1.setDouble(1,tableno);
+                                                   pst1.setString(2,names);
+                                                   pst1.setDouble(3,1.0);
+                                                   pst1.setString(4,"ordered");
+                                                   pst1.executeUpdate();
+                                               }
+                                           }catch (Exception e){
+                                               JOptionPane.showMessageDialog(null,e.getMessage());
+                                           }
+
+
                                        }
+                                       else{
+                                           quantity.setText(Integer.toString(d+1));
+                                           try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                                               String querry="update currentorders set quantity=? where name=?";
+                                               try(PreparedStatement pst1=con1.prepareStatement(querry)){
+                                                   pst1.setDouble(1,d+1);
+                                                   pst1.setString(2,names);
+                                                   pst1.executeUpdate();
+
+
+                                               }
+                                           }catch (Exception e){
+                                               JOptionPane.showMessageDialog(null,e.getMessage());
+                                           }
+                                       }
+                                    }
+                            );
+
+                            remove.addActionListener(
+                                    y->{
+                                        int d=Integer.parseInt(quantity.getText());
+                                        d--;
+                                        if(d==0){
+                                            quantity.setText(Integer.toString(0));
+                                            quantity.setVisible(false);
+                                            remove.setVisible(false);
+                                            bpanel.setBorder(null);
+
+                                        }
+                                        else{
+                                            quantity.setText(Integer.toString(d));
+                                        }
                                     }
                             );
 
@@ -271,7 +375,7 @@ class Customer {
                             row.add(bpanel);
                             row.setFont(f2);
                             row.setBorder(panelborder);
-                            row.setMaximumSize(new Dimension(750,50));
+                            row.setMaximumSize(new Dimension(750,60));
                             menubox.add(row);
                             menubox.add(Box.createVerticalStrut(10));
 
@@ -283,7 +387,7 @@ class Customer {
                 menubox.revalidate(); // Revalidate the UI
                 menubox.repaint();
             });
-           i++;
+
         }
 
 //        for(item ditto:items){
@@ -311,7 +415,23 @@ class Customer {
 
 
 
+        frame.addWindowListener(
+                new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                            String querry="Drop table currentorders";
+                            try(PreparedStatement pst1=con1.prepareStatement(querry)){
 
+
+
+                            }
+                        }catch (Exception e1){
+                            JOptionPane.showMessageDialog(null,e1.getMessage());
+                        }
+                    }
+                }
+        );
 
 
         frame.setVisible(true);
