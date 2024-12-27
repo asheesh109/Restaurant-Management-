@@ -10,12 +10,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.UUID;
+import java.security.SecureRandom;
+
 
 class Customer {
   final static int tableno=19;
    HashMap<String,Integer> h=new HashMap<String,Integer>();
    HashMap<String,JPanel> h1=new HashMap<String,JPanel>();
     Customer(){
+
+        long uuidHash = UUID.randomUUID().hashCode();
+
+        // Combine with a high-quality random number
+        SecureRandom secureRandom = new SecureRandom();
+        double randomComponent = secureRandom.nextDouble();
+
+        // Combine the unique and random components
+        double orderId= Math.abs(uuidHash * randomComponent);
+
         Border panelborder=BorderFactory.createLineBorder(new Color(69, 10, 168, 196),1);
 
         Font f = new Font("Calibri", Font.BOLD, 50);
@@ -84,10 +97,7 @@ class Customer {
         leftPanel.setPreferredSize(new Dimension(250,700));
         leftPanel.setBorder(panelborder);
 
-        JPanel bottomPanel=new JPanel(new FlowLayout());
-        bottomPanel.setBackground(new Color(230, 230, 250));
-        bottomPanel.setPreferredSize(new Dimension(900,150));
-        bottomPanel.setBorder(panelborder);
+
 
         JPanel menuhead=new JPanel(new BorderLayout());
 
@@ -183,6 +193,23 @@ class Customer {
         centrePanel.setBorder(panelborder);
         centrePanel.add(menu,BorderLayout.WEST);
         centrePanel.add(selected,BorderLayout.CENTER);
+
+        JPanel bottomPanel=new JPanel(new BorderLayout());
+        bottomPanel.setBackground(new Color(230, 230, 250));
+        bottomPanel.setPreferredSize(new Dimension(900,150));
+        bottomPanel.setBorder(panelborder);
+
+        JPanel leftAlign=new JPanel(new FlowLayout(FlowLayout.CENTER));
+        leftAlign.setPreferredSize(new Dimension(450,80));
+        leftAlign.setBackground(new Color(230, 230, 250));
+        JButton getBill=new JButton(" Get Bill");
+        getBill.setFont(f1);
+        leftAlign.add(getBill);
+
+        bottomPanel.add(leftAlign,BorderLayout.EAST);
+
+
+
 
         frame.add(titlePanel,BorderLayout.NORTH);
         frame.add(leftPanel,BorderLayout.WEST);
@@ -383,7 +410,7 @@ class Customer {
 
             ditto.addActionListener(a -> {
                 if (!h.isEmpty()){
-                JOptionPane.showMessageDialog(null,"order all items in this category first");
+                JOptionPane.showMessageDialog(null,"order selected items in this category first");
                 return;
             }
                 ditto.setBackground(new Color(157, 77, 233));
@@ -593,7 +620,7 @@ order.addActionListener(
             else{
 
                 try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
-                                              String querry="insert into currentorders(tableno,name,quantity,status) values(?,?,?,?)";
+                                              String querry="insert into currentorders(tableno,name,quantity,status,orderId) values(?,?,?,?,?)";
                                                try(PreparedStatement pst1=con1.prepareStatement(querry)){
                                                  for (HashMap.Entry<String,Integer> ditto:h.entrySet()){
                                                      String s1=ditto.getKey();
@@ -603,6 +630,7 @@ order.addActionListener(
                                                          pst1.setString(2,s1);
                                                          pst1.setInt(3,quantity);
                                                          pst1.setString(4,"ordered");
+                                                         pst1.setDouble(5,orderId);
                                                          pst1.executeUpdate();
                                                      }
                                                  }
@@ -650,8 +678,21 @@ order.addActionListener(
 
         reset.addActionListener(
                 a->{
-                    new Customer();
-                    frame.dispose();
+                  selectedItemsData.removeAll();
+                  selectedItemsData.revalidate();
+                  selectedItemsData.repaint();
+                  h.clear();
+                  for (JButton ditto:b){
+                      ditto.doClick();
+                      b.getFirst().doClick();
+                  }
+                }
+        );
+
+        getBill.addActionListener(
+                a->{
+                    new Bill(orderId);
+
                 }
         );
 
