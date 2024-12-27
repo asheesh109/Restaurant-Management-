@@ -1,5 +1,7 @@
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -30,7 +32,7 @@ class Customer {
         double orderId= Math.abs(uuidHash * randomComponent);
 
         Border panelborder=BorderFactory.createLineBorder(new Color(69, 10, 168, 196),1);
-
+        Border margin=new EmptyBorder(5,5,5,5);
         Font f = new Font("Calibri", Font.BOLD, 50);
         Font f1 = new Font("Calibri", Font.BOLD, 30);
         Font f2 = new Font("Calibri", Font.BOLD, 18);
@@ -313,8 +315,8 @@ class Customer {
 
                                     selectedRow.add(selectedName);
                                     selectedRow.add(selectedQuantity);
-                                    selectedRow.setBorder(panelborder);
-                                    selectedRow.setMaximumSize(new Dimension(440,35));
+                                    selectedRow.setBorder(new CompoundBorder(margin,panelborder));
+                                    selectedRow.setMaximumSize(new Dimension(440,45));
                                     selectedItemsData.add(selectedRow);
 
 
@@ -480,6 +482,7 @@ class Customer {
                             selectedName.setPreferredSize(new Dimension(200,30));
                             selectedQuantity.setPreferredSize(new Dimension(100,30));
 
+
                             add.addActionListener(
                                     z->{
                                         int d=Integer.parseInt(quantity.getText());
@@ -495,8 +498,8 @@ class Customer {
 
                                            selectedRow.add(selectedName);
                                            selectedRow.add(selectedQuantity);
-                                           selectedRow.setBorder(panelborder);
-                                           selectedRow.setMaximumSize(new Dimension(440,35));
+                                           selectedRow.setBorder(new CompoundBorder(margin,panelborder));
+                                           selectedRow.setMaximumSize(new Dimension(440,45));
                                            selectedItemsData.add(selectedRow);
 
 

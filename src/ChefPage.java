@@ -3,23 +3,19 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.sql.*;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ChefPage {
-    static Timestamp lastfetch = new Timestamp(System.currentTimeMillis());
+
+    private DefaultTableModel tableModel;
 
     public ChefPage() {
-
         JFrame frame = new JFrame("Chefpage");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(1100, 750);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
 
-
-
-        JLabel title = new JLabel("Restaurant", SwingConstants.CENTER);
+        JLabel title = new JLabel("Current Orders", SwingConstants.CENTER);
         title.setFont(new Font("Futura", Font.BOLD, 50));
         title.setForeground(Color.white);
         title.setOpaque(true);
@@ -27,10 +23,8 @@ public class ChefPage {
         title.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         frame.add(title, BorderLayout.NORTH);
 
-
-
         String[] columnNames = {"Name", "Quantity", "Status", "Actions"};
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+        tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return column == 3;
@@ -44,59 +38,50 @@ public class ChefPage {
         table.getTableHeader().setForeground(Color.WHITE);
         table.setGridColor(new Color(224, 224, 224));
 
-
         table.getColumnModel().getColumn(3).setPreferredWidth(400);
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(900, 550));
-        scrollPane.setBorder(BorderFactory.createLineBorder( Color.white, 15));
+        scrollPane.setBorder(BorderFactory.createLineBorder(Color.white, 15));
         frame.add(scrollPane, BorderLayout.CENTER);
-
 
         table.getColumn("Actions").setCellRenderer(new ButtonRenderer());
         table.getColumn("Actions").setCellEditor(new ButtonEditor(new JTextField(), tableModel));
 
 
+        loadOrders();
+
+
+        Timer timer = new Timer(1000, e -> loadOrders());
+        timer.start();
+
+        frame.setVisible(true);
+    }
+
+    void loadOrders() {
         String url = "jdbc:mysql://localhost:3306/restro";
         String user = "root";
         String password = "Shubham1s23@";
 
         try (Connection con = DriverManager.getConnection(url, user, password)) {
-            String sql = "SELECT * FROM currentorders WHERE status = 'ordered'";
+            String sql = "SELECT * FROM currentorders WHERE status = 'ordered' OR status='accepted'";
             try (PreparedStatement pst = con.prepareStatement(sql)) {
                 ResultSet rs = pst.executeQuery();
+
+
+                tableModel.setRowCount(0);
+
                 while (rs.next()) {
                     String name = rs.getString("name");
                     double quantity = rs.getDouble("quantity");
                     String status = rs.getString("status");
                     tableModel.addRow(new Object[]{name, quantity, status, ""});
-
                 }
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage() +e);
         }
-
-        java.util.Timer timer = new Timer();
-        final Timestamp[] lastfetch = {new Timestamp(System.currentTimeMillis())};
-
-
-        // Schedule the task to run every 1 second
-//        timer.scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run() {
-//
-//
-//
-//            }
-//        }, 0, 1000);
-
-
-
-
-        frame.setVisible(true);
     }
-
 
     static class ButtonRenderer extends JPanel implements TableCellRenderer {
         public ButtonRenderer() {
@@ -119,8 +104,6 @@ public class ChefPage {
             completeButton.setBackground(Color.WHITE);
             completeButton.setForeground(new Color(33, 100, 243));
 
-
-
             add(acceptButton);
             add(rejectButton);
             add(completeButton);
@@ -128,7 +111,6 @@ public class ChefPage {
             return this;
         }
     }
-
 
     static class ButtonEditor extends DefaultCellEditor {
         private JPanel panel;
@@ -153,21 +135,13 @@ public class ChefPage {
             completeButton.setBackground(Color.WHITE);
             completeButton.setForeground(new Color(33, 100, 243));
 
-            acceptButton.addActionListener(a ->
-            {
-                updateStatus("Accepted", false);
-            });
-            rejectButton.addActionListener(a ->
-            {
-                updateStatus("Rejected", true);
-            });
+            acceptButton.addActionListener(a -> updateStatus("Accepted", false));
+            rejectButton.addActionListener(a -> updateStatus("Rejected", true));
             completeButton.addActionListener(a -> {
                 String status = tableModel.getValueAt(table.getEditingRow(), 2).toString();
                 if ("Accepted".equalsIgnoreCase(status)) {
                     updateStatus("Completed", true);
-                }
-                else
-                {
+                } else {
                     JOptionPane.showMessageDialog(null, "Order is not Accepted.");
                 }
             });
@@ -192,7 +166,6 @@ public class ChefPage {
                     pst.setString(2, name);
                     pst.executeUpdate();
 
-
                     tableModel.setValueAt(status, row, 2);
                     JOptionPane.showMessageDialog(null, "Status updated to " + status + " for " + name);
 
@@ -201,7 +174,7 @@ public class ChefPage {
                     }
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, e.getMessage());
+                JOptionPane.showMessageDialog(null, e.getMessage()+e);
             }
         }
 
