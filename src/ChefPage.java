@@ -70,7 +70,7 @@ public class ChefPage {
         String password = "Shubham1s23@";
 
         try (Connection con = DriverManager.getConnection(url, user, password)) {
-            String sql = "SELECT orderId, name, quantity, status FROM currentorders WHERE status = 'ordered' OR status = 'Accepted'";
+            String sql = "SELECT id, name, quantity, status FROM currentorders WHERE status = 'ordered' OR status = 'Accepted'";
 
             try (PreparedStatement pst = con.prepareStatement(sql)) {
                 ResultSet rs = pst.executeQuery();
@@ -78,7 +78,7 @@ public class ChefPage {
 
 
                 while (rs.next()) {
-                    int id = rs.getInt("orderId");
+                    int id = rs.getInt("id");
                     String name = rs.getString("name");
                     double quantity = rs.getDouble("quantity");
                     String status = rs.getString("status");
@@ -168,7 +168,7 @@ public class ChefPage {
             String password = "Shubham1s23@";
 
             try (Connection con = DriverManager.getConnection(url, user, password)) {
-                String updateSql = "UPDATE currentorders SET status = ? WHERE orderId = ?";
+                String updateSql = "UPDATE currentorders SET status = ? WHERE id = ?";
                 try (PreparedStatement pst = con.prepareStatement(updateSql)) {
                     pst.setString(1, status);
                     pst.setInt(2, id);
@@ -246,10 +246,10 @@ public class ChefPage {
             String password = "Shubham1s23@";
 
             try (Connection con = DriverManager.getConnection(url, user, password)) {
-                String updateSql = "UPDATE currentorders SET status = ? WHERE orderId = ?";
+                String updateSql = "UPDATE currentorders SET status = ? WHERE id = ?";
                 try (PreparedStatement pst = con.prepareStatement(updateSql)) {
-                    pst.setString(1,status);
-                    pst.setInt(2,id);
+                    pst.setString(1, status);
+                    pst.setInt(2, id);
                     pst.executeUpdate();
 
                     table.setValueAt(status, row, 3);
