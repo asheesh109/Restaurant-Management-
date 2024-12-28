@@ -264,7 +264,7 @@ class Customer {
         getBill.setFont(f1);
         leftAlign.add(getBill);
 
-        bottomPanel.add(leftAlign,BorderLayout.EAST);
+        bottomPanel.add(leftAlign,BorderLayout.CENTER);
 
 
 
