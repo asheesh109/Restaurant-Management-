@@ -23,11 +23,12 @@ public class ChefPage {
         title.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         frame.add(title, BorderLayout.NORTH);
 
-        String[] columnNames = {"Name", "Quantity", "Status", "Actions"};
+        String[] columnNames = {"ID", "Name", "Quantity", "Status", "Actions"};
+
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 3;
+                return column == 4;
             }
         };
         JTable table = new JTable(tableModel);
@@ -38,16 +39,21 @@ public class ChefPage {
         table.getTableHeader().setForeground(Color.WHITE);
         table.setGridColor(new Color(224, 224, 224));
 
-        table.getColumnModel().getColumn(3).setPreferredWidth(400);
+        // Adjust column widths
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(50);
+        table.getColumnModel().getColumn(3).setPreferredWidth(150);
+        table.getColumnModel().getColumn(4).setPreferredWidth(300);
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(900, 550));
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.white, 15));
         frame.add(scrollPane, BorderLayout.CENTER);
 
-        table.getColumn("Actions").setCellRenderer(new ButtonRenderer());
-        table.getColumn("Actions").setCellEditor(new ButtonEditor(new JTextField(), tableModel));
 
+        table.getColumn("Actions").setCellRenderer(new ButtonRenderer(table));
+        table.getColumn("Actions").setCellEditor(new ButtonEditor(new JTextField(), table));
 
         loadOrders();
 
@@ -64,27 +70,44 @@ public class ChefPage {
         String password = "Shubham1s23@";
 
         try (Connection con = DriverManager.getConnection(url, user, password)) {
-            String sql = "SELECT * FROM currentorders WHERE status = 'ordered' OR status='accepted'";
+            String sql = "SELECT orderId, name, quantity, status FROM currentorders WHERE status = 'ordered' OR status = 'Accepted'";
+
             try (PreparedStatement pst = con.prepareStatement(sql)) {
                 ResultSet rs = pst.executeQuery();
 
 
-                tableModel.setRowCount(0);
 
                 while (rs.next()) {
+                    int id = rs.getInt("orderId");
                     String name = rs.getString("name");
                     double quantity = rs.getDouble("quantity");
                     String status = rs.getString("status");
-                    tableModel.addRow(new Object[]{name, quantity, status, ""});
+
+
+                    boolean exists = false;
+                    for (int i = 0; i < tableModel.getRowCount(); i++) {
+                        if ((int) tableModel.getValueAt(i, 0) == id) {
+                            exists = true;
+                            break;
+                        }
+                    }
+
+                    if (!exists) {
+                        tableModel.addRow(new Object[]{id, name, quantity, status, ""});
+                    }
                 }
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage() +e);
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
     }
 
+
     static class ButtonRenderer extends JPanel implements TableCellRenderer {
-        public ButtonRenderer() {
+        private JTable table;
+
+        public ButtonRenderer(JTable table) {
+            this.table = table;
             setLayout(new GridLayout(1, 3, 10, 0));
             setBackground(new Color(245, 245, 245));
         }
@@ -104,23 +127,76 @@ public class ChefPage {
             completeButton.setBackground(Color.WHITE);
             completeButton.setForeground(new Color(33, 100, 243));
 
+
+            acceptButton.addActionListener(a ->
+            {
+                updateStatus("Accepted", row);
+            });
+            rejectButton.addActionListener(a ->
+            {
+                updateStatus("Rejected", row);
+            });
+            completeButton.addActionListener(a ->
+            {
+                String status = table.getValueAt(row, 3).toString();
+                if ("Accepted".equalsIgnoreCase(status)) {
+                    updateStatus("Completed", row);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Order is not Accepted.");
+                }
+            });
+
             add(acceptButton);
             add(rejectButton);
             add(completeButton);
 
             return this;
         }
+
+        void updateStatus(String status, int row) {
+
+            if (row == -1) {
+                row = table.getEditingRow();
+            }
+
+//
+
+            int id = (int) table.getValueAt(row, 0);
+
+            String url = "jdbc:mysql://localhost:3306/restro";
+            String user = "root";
+            String password = "Shubham1s23@";
+
+            try (Connection con = DriverManager.getConnection(url, user, password)) {
+                String updateSql = "UPDATE currentorders SET status = ? WHERE orderId = ?";
+                try (PreparedStatement pst = con.prepareStatement(updateSql)) {
+                    pst.setString(1, status);
+                    pst.setInt(2, id);
+                    pst.executeUpdate();
+
+                    table.setValueAt(status, row, 3);
+
+                    JOptionPane.showMessageDialog(null, "Status updated to " + status);
+
+
+                    if ("Completed".equals(status)) {
+                        ((DefaultTableModel) table.getModel()).removeRow(row);
+                    }
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+            }
+        }
     }
+
 
     static class ButtonEditor extends DefaultCellEditor {
         private JPanel panel;
         private JTable table;
-        private DefaultTableModel tableModel;
 
-        public ButtonEditor(JTextField textField, DefaultTableModel tableModel) {
+        public ButtonEditor(JTextField textField, JTable table) {
             super(textField);
-
-            this.tableModel = tableModel;
+            this.table = table;
             panel = new JPanel(new GridLayout(1, 3, 10, 0));
             panel.setBackground(new Color(245, 245, 245));
 
@@ -135,12 +211,14 @@ public class ChefPage {
             completeButton.setBackground(Color.WHITE);
             completeButton.setForeground(new Color(33, 100, 243));
 
-            acceptButton.addActionListener(a -> updateStatus("Accepted", false));
-            rejectButton.addActionListener(a -> updateStatus("Rejected", true));
+
+            acceptButton.addActionListener(a -> updateStatus("Accepted", table.getEditingRow()));
+            rejectButton.addActionListener(a -> updateStatus("Rejected", table.getEditingRow()));
             completeButton.addActionListener(a -> {
-                String status = tableModel.getValueAt(table.getEditingRow(), 2).toString();
+                int row = table.getEditingRow();
+                String status = table.getValueAt(row, 3).toString();
                 if ("Accepted".equalsIgnoreCase(status)) {
-                    updateStatus("Completed", true);
+                    updateStatus("Completed", row);
                 } else {
                     JOptionPane.showMessageDialog(null, "Order is not Accepted.");
                 }
@@ -151,46 +229,57 @@ public class ChefPage {
             panel.add(completeButton);
         }
 
-        void updateStatus(String status, boolean remove) {
-            int row = table.getEditingRow();
-            String name = tableModel.getValueAt(row, 0).toString();
+        void updateStatus(String status, int row) {
+            if (row == -1) {
+                row = table.getEditingRow();
+            }
+
+            if (row == -1) {
+                JOptionPane.showMessageDialog(null, "Please select a row first.");
+                return;
+            }
+
+            int id = (int) table.getValueAt(row, 0);
 
             String url = "jdbc:mysql://localhost:3306/restro";
             String user = "root";
             String password = "Shubham1s23@";
 
             try (Connection con = DriverManager.getConnection(url, user, password)) {
-                String updateSql = "UPDATE currentorders SET status = ? WHERE name = ?";
+                String updateSql = "UPDATE currentorders SET status = ? WHERE orderId = ?";
                 try (PreparedStatement pst = con.prepareStatement(updateSql)) {
-                    pst.setString(1, status);
-                    pst.setString(2, name);
+                    pst.setString(1,status);
+                    pst.setInt(2,id);
                     pst.executeUpdate();
 
-                    tableModel.setValueAt(status, row, 2);
-                    JOptionPane.showMessageDialog(null, "Status updated to " + status + " for " + name);
+                    table.setValueAt(status, row, 3);
 
-                    if (remove) {
-                        tableModel.removeRow(row);
+                    JOptionPane.showMessageDialog(null, "Status updated to " + status);
+
+
+                    if (table.isEditing()) {
+                        table.getCellEditor().stopCellEditing();
+                    }
+
+
+                    if ("Completed".equals(status) || "Rejected".equals(status)) {
+                        ((DefaultTableModel) table.getModel()).removeRow(row);
                     }
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, e.getMessage()+e);
+                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
             }
         }
+
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             this.table = table;
             return panel;
         }
-
-        @Override
-        public Object getCellEditorValue() {
-            return null;
-        }
     }
 
     public static void main(String[] args) {
-        new ChefPage();
+        SwingUtilities.invokeLater(ChefPage::new);
     }
 }

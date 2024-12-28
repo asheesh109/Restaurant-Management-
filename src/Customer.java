@@ -14,9 +14,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 import java.util.Vector;
 import java.util.UUID;
 import java.security.SecureRandom;
+import java.util.*;
+import java.util.TimerTask;
 
 
 class Customer {
@@ -76,6 +79,8 @@ class Customer {
 
 
 
+
+
         String url = "jdbc:mysql://localhost:3306/restro";
         try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
             String sql="select * from category order by id";
@@ -96,6 +101,40 @@ class Customer {
         }catch (Exception e){
             JOptionPane.showMessageDialog(null,e.getMessage());
         }
+
+        Timer timer = new Timer();
+
+        // Schedule the task to run every 1 second
+        timer.scheduleAtFixedRate(new TimerTask() {
+             public void run(){
+                try(Connection con=DriverManager.getConnection(url,"root","Shubham1s23@"))
+                {
+                    String sql="select * from currentorders where orderId=? and status='rejected' ";
+                    try(PreparedStatement pst=con.prepareStatement(sql)){
+                        pst.setDouble(1,orderId);
+                        ResultSet rs=pst.executeQuery();
+                        StringBuilder s=new StringBuilder();
+                        while (rs.next()){
+                            s.append(rs.getString("name")+" ");
+
+                        }
+                        if (!s.isEmpty()){
+                            JOptionPane.showMessageDialog(null," The orders "+s+"are not available now");
+                            String querry="update currentorders set status='rejecteddisplayed' where orderId=? and status='rejected'";
+                            try(PreparedStatement pst1=con.prepareStatement(querry)){
+                                pst1.setDouble(1,orderId);
+                                pst1.executeUpdate();
+                            }
+                        }
+                    }
+                }
+                catch(Exception e){
+                    JOptionPane.showMessageDialog(null,e.getMessage());
+
+                }
+            }
+
+        }, 0, 10000);
 
         leftPanel.add(catAlign,BorderLayout.NORTH);
         leftPanel.add(category,BorderLayout.CENTER);
@@ -142,7 +181,7 @@ class Customer {
         menuscroll.setViewportView(menubox);
 
         JTextField search=new JTextField(15);
-        search.setFont(f1);
+        search.setFont(f2);
         JLabel searchlabel=new JLabel("Search",JLabel.CENTER);
         searchlabel.setFont(f1);
 
@@ -429,6 +468,7 @@ class Customer {
 
 
             ditto.addActionListener(a -> {
+
                 if (!(h.isEmpty())&&!(ditto.getBackground().equals(new Color(157, 77, 233)))){
                 JOptionPane.showMessageDialog(null,"order selected items in this category first");
                 return;

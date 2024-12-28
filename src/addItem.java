@@ -59,7 +59,7 @@ class addItem {
 
 
        String url = "jdbc:mysql://localhost:3306/restro";
-       try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
+       try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
            String sql="select * from category order by id";
            try(PreparedStatement pst=con.prepareStatement(sql)){
                ResultSet rs= pst.executeQuery();
@@ -109,7 +109,7 @@ class addItem {
                     String s3=categoryComboBox.getSelectedItem().toString().toLowerCase();
                     if(!(s1.isEmpty()&&s2.isEmpty())) {
                         double d1=Double.parseDouble(s2);
-                        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
+                        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
                             String sql = "insert into menu (name,price,category) values(?,?,?)";
                             try (PreparedStatement pst = con.prepareStatement(sql)) {
                                 pst.setString(1,s1);

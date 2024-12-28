@@ -79,7 +79,7 @@ class editMenu {
 
 
         String url = "jdbc:mysql://localhost:3306/restro";
-        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
+        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
             String sql="select * from category order by id";
             try(PreparedStatement pst=con.prepareStatement(sql)){
                 ResultSet rs= pst.executeQuery();
@@ -150,7 +150,7 @@ class editMenu {
         frame.add(buttonPanel,BorderLayout.WEST);
         frame.add(container,BorderLayout.CENTER);
 
-        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
+        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
             String sql="select * from menu where category=? order by id";
             try(PreparedStatement pst=con.prepareStatement(sql)){
                 String s1=b.get(0).getText().toLowerCase();
@@ -198,7 +198,7 @@ frame.dispose();
                        String s1= ditto.getText().toLowerCase();
                        tableModel.setRowCount(0);
 
-                        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
+                        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
                             String sql="select * from menu where category=? order by id";
                             try(PreparedStatement pst=con.prepareStatement(sql)){
                                 pst.setString(1,s1);

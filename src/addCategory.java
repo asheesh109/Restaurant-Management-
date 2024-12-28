@@ -73,7 +73,7 @@ class AddCategory {
                     String s1=t1.getText().toLowerCase();
                     if(!s1.isEmpty()){
                         String url = "jdbc:mysql://localhost:3306/restro";
-                        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
+                        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
                             String sql="insert into category (name) values(?)";
                             try(PreparedStatement pst=con.prepareStatement(sql)){
                                 pst.setString(1,s1);
