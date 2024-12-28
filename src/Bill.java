@@ -144,7 +144,7 @@ public class Bill extends JFrame {
         setTitle("Bill");
         setSize(800, 550);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setVisible(true);
     }
 

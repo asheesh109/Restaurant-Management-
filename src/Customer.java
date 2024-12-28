@@ -2,6 +2,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -11,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import java.util.UUID;
 import java.security.SecureRandom;
@@ -20,6 +23,7 @@ class Customer {
   final static int tableno=19;
    HashMap<String,Integer> h=new HashMap<String,Integer>();
    HashMap<String,JPanel> h1=new HashMap<String,JPanel>();
+   HashMap<String,JPanel> panels=new HashMap<String,JPanel>();
     Customer(){
 
         long uuidHash = UUID.randomUUID().hashCode();
@@ -33,6 +37,7 @@ class Customer {
 
         Border panelborder=BorderFactory.createLineBorder(new Color(69, 10, 168, 196),1);
         Border margin=new EmptyBorder(5,5,5,5);
+        Border margin1=new EmptyBorder(10,10,10,10);
         Font f = new Font("Calibri", Font.BOLD, 50);
         Font f1 = new Font("Calibri", Font.BOLD, 30);
         Font f2 = new Font("Calibri", Font.BOLD, 18);
@@ -136,12 +141,24 @@ class Customer {
         menubox.setLayout(new BoxLayout(menubox,BoxLayout.Y_AXIS));// For vertical alignment of rows
         menuscroll.setViewportView(menubox);
 
+        JTextField search=new JTextField(15);
+        search.setFont(f1);
+        JLabel searchlabel=new JLabel("Search",JLabel.CENTER);
+        searchlabel.setFont(f1);
+
+        JPanel searchbox=new JPanel(new FlowLayout(FlowLayout.CENTER));
+        searchbox.add(searchlabel);
+        searchbox.add(search);
+        JPanel top=new JPanel(new BorderLayout());
+        top.add(searchbox,BorderLayout.NORTH);
+        top.add(menuhead,BorderLayout.CENTER);
+
 
         JPanel menu=new JPanel(new BorderLayout(10,25));
         menu.setPreferredSize(new Dimension(800,300));
-        menu.add(menuhead,BorderLayout.NORTH);
-        menu.add(menuscroll,BorderLayout.CENTER);
 
+        menu.add(top,BorderLayout.NORTH);
+        menu.add(menuscroll,BorderLayout.CENTER);
         JPanel selected=new JPanel(new BorderLayout(10,10));
 
         JPanel selectedTitle=new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -227,7 +244,7 @@ class Customer {
 //
 //        Vector<item> items=new Vector<>();
 
-        b.get(0).setBackground(new Color(174, 220, 213));
+        b.getFirst().setBackground(new Color(157, 77, 233));
         try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
             String sql = "SELECT * FROM menu WHERE category=? ORDER BY id";
             try (PreparedStatement pst = con.prepareStatement(sql)) {
@@ -392,10 +409,11 @@ class Customer {
                     row.add(ppanel);
                     row.add(bpanel);
                     row.setFont(f2);
-                    row.setBorder(panelborder);
-                    row.setMaximumSize(new Dimension(750,60));
+                    row.setBorder(new CompoundBorder(margin1,panelborder));
+                    row.setMaximumSize(new Dimension(750,80));
+                    panels.put(names,row);
                     menubox.add(row);
-                    menubox.add(Box.createVerticalStrut(10));
+//                    menubox.add(Box.createVerticalStrut(10));
 
                 }
             }
@@ -411,7 +429,7 @@ class Customer {
 
 
             ditto.addActionListener(a -> {
-                if (!h.isEmpty()){
+                if (!(h.isEmpty())&&!(ditto.getBackground().equals(new Color(157, 77, 233)))){
                 JOptionPane.showMessageDialog(null,"order selected items in this category first");
                 return;
             }
@@ -423,6 +441,7 @@ class Customer {
                 }
 
                 String s1 = ditto.getText().toLowerCase();
+                panels.clear();
                 menubox.removeAll(); // Clear old menu items
                 menubox.add(Box.createVerticalStrut(10));
                 try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
@@ -581,10 +600,11 @@ class Customer {
                             row.add(ppanel);
                             row.add(bpanel);
                             row.setFont(f2);
-                            row.setBorder(panelborder);
-                            row.setMaximumSize(new Dimension(750,60));
+                            row.setBorder(new CompoundBorder(margin1,panelborder));
+                            row.setMaximumSize(new Dimension(750,80));
+                            panels.put(names,row);
                             menubox.add(row);
-                            menubox.add(Box.createVerticalStrut(10));
+//                            menubox.add(Box.createVerticalStrut(10));
 
                         }
                     }
@@ -644,14 +664,41 @@ order.addActionListener(
                                            }catch (Exception e){
                                                JOptionPane.showMessageDialog(null,e.getMessage());
                                            }
+                String randomkey=h.keySet().iterator().next();
+                    String categoryname=new String();
+                try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                    String querry="select * from menu where name=?";
+                    try(PreparedStatement pst1=con1.prepareStatement(querry)){
+                        pst1.setString(1,randomkey);
+                        ResultSet rs=pst1.executeQuery();
+                        if (rs.next()){
+                            categoryname=rs.getString("category");
+
+                        }
+
+
+
+                    }
+                }catch (Exception e){
+                    JOptionPane.showMessageDialog(null,e.getMessage());
+                }
+
+
                 h.clear();
+                for (JButton ditto:b){
+                    if (ditto.getText().toLowerCase().equals(categoryname)) {
+                        ditto.doClick();
+                    }
+
+
+                }
+
+
                 selectedItemsData.removeAll();
                 selectedItemsData.revalidate();
                 selectedItemsData.repaint();
-                for (JButton ditto:b){
-                    ditto.doClick();
-                }
-                b.get(0).doClick();
+
+
             }
         }
 );
@@ -696,6 +743,54 @@ order.addActionListener(
                 a->{
                     new Bill(orderId);
 
+                }
+        );
+
+        search.getDocument().addDocumentListener(
+                new DocumentListener() {
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        handlechange();
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        handlechange();
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        handlechange();
+                    }
+                    public void handlechange(){
+                        String s1=search.getText().toLowerCase();
+                        if (!s1.isEmpty()){
+
+                        for (Map.Entry<String,JPanel> ditto:panels.entrySet()){
+                            if (!ditto.getKey().toLowerCase().contains(s1)){
+                                ditto.getValue().setVisible(false);
+
+                            }else{
+                                ditto.getValue().setVisible(true);
+                            }
+                                menubox.revalidate();
+                                menubox.repaint();
+                        }
+                        }
+                            else if (s1.isEmpty()){
+                                menubox.removeAll();
+
+                            for (Map.Entry<String,JPanel> ditto:panels.entrySet()){
+                                ditto.getValue().setVisible(true);
+                                menubox.add(ditto.getValue());
+
+
+                            }
+                            menubox.revalidate();
+                            menubox.repaint();
+                            }
+
+                    }
                 }
         );
 
