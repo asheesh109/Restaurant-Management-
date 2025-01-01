@@ -115,7 +115,13 @@ class Customer {
                         ResultSet rs=pst.executeQuery();
                         StringBuilder s=new StringBuilder();
                         while (rs.next()){
+                            if (s.isEmpty()){
                             s.append(rs.getString("name")+" ");
+
+                            }else {
+
+                            s.append(rs.getString("name")+",");
+                            }
 
                         }
                         if (!s.isEmpty()){
@@ -469,10 +475,10 @@ class Customer {
 
             ditto.addActionListener(a -> {
 
-                if (!(h.isEmpty())&&!(ditto.getBackground().equals(new Color(157, 77, 233)))){
-                JOptionPane.showMessageDialog(null,"order selected items in this category first");
-                return;
-            }
+//                if (!(h.isEmpty())&&!(ditto.getBackground().equals(new Color(157, 77, 233)))){
+//                JOptionPane.showMessageDialog(null,"order selected items in this category first");
+//                return;
+//            }
                 ditto.setBackground(new Color(157, 77, 233));
                 for (JButton bitto:b){
                     if(bitto!=ditto){
@@ -683,7 +689,7 @@ order.addActionListener(
             else{
 
                 try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
-                                              String querry="insert into currentorders(tableno,name,quantity,status,orderId) values(?,?,?,?,?)";
+                                              String querry="insert into currentorders(tableno,name,quantity,status,orderId,billstatus) values(?,?,?,?,?,?)";
                                                try(PreparedStatement pst1=con1.prepareStatement(querry)){
                                                  for (HashMap.Entry<String,Integer> ditto:h.entrySet()){
                                                      String s1=ditto.getKey();
@@ -694,6 +700,7 @@ order.addActionListener(
                                                          pst1.setInt(3,quantity);
                                                          pst1.setString(4,"ordered");
                                                          pst1.setDouble(5,orderId);
+                                                         pst1.setString(6,"unknown");
                                                          pst1.executeUpdate();
                                                      }
                                                  }

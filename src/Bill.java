@@ -45,12 +45,20 @@ public class Bill extends JFrame {
         backButton.setFocusPainted(false);
         backButton.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
 
-        JButton pay=new JButton("Pay");
+        JButton pay=new JButton("Pay Online");
         pay.setFont(buttonFont);
         pay.setForeground(Color.WHITE);
         pay.setBackground(new Color(94, 45, 172, 196));
         pay.setFocusPainted(false);
         pay.setBorder((BorderFactory.createEmptyBorder(10, 25, 10, 25)));
+
+        JButton pay1=new JButton("Cash (Call waiter)");
+        pay1.setFont(buttonFont);
+        pay1.setForeground(Color.WHITE);
+        pay1.setBackground(new Color(94, 45, 172, 196));
+        pay1.setFocusPainted(false);
+        pay1.setBorder((BorderFactory.createEmptyBorder(10, 25, 10, 25)));
+
         pay.addActionListener(
                 a->{
                     new Customer();
@@ -64,6 +72,22 @@ public class Bill extends JFrame {
             dispose();
         });
 
+        pay1.addActionListener(
+                a->{
+                    String url = "jdbc:mysql://localhost:3306/restro";
+                    try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                        String sql="update currentorders set billstatus='cash' where orderid=?";
+                        try(PreparedStatement pst=con.prepareStatement(sql)){
+                            pst.setDouble(1,orderId);
+                           pst.executeUpdate();
+                        }
+                    }catch (Exception e){
+                        JOptionPane.showMessageDialog(null,e.getMessage());
+                    }
+
+                }
+        );
+
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(new Color(0, 102, 204));
         topPanel.add(title, BorderLayout.CENTER);
@@ -72,6 +96,7 @@ public class Bill extends JFrame {
         bottomPanel.setBackground(new Color(224, 224, 224));
         bottomPanel.add(backButton);
         bottomPanel.add(pay);
+        bottomPanel.add(pay1);
 
         Container c = getContentPane();
         c.setLayout(new BorderLayout(20, 20));
