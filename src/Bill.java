@@ -11,6 +11,7 @@ class data{
 }
 
 public class Bill extends JFrame {
+  static  double grandTotal=0.0;
     HashMap<String,data> h=new HashMap<String,data>();
     Bill(double orderId) {
         Font titleFont = new Font("Futura", Font.BOLD, 40);
@@ -74,15 +75,36 @@ public class Bill extends JFrame {
 
         pay1.addActionListener(
                 a->{
+                    int is=0;
                     String url = "jdbc:mysql://localhost:3306/restro";
-                    try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
-                        String sql="update currentorders set billstatus='cash' where orderid=?";
-                        try(PreparedStatement pst=con.prepareStatement(sql)){
+                    try(Connection connection=DriverManager.getConnection(url,"root","Shubham1s23@")){
+                        String sql="select * from currentorders where orderid=? and status='finished'";
+                        try(PreparedStatement pst=connection.prepareStatement(sql)){
                             pst.setDouble(1,orderId);
-                           pst.executeUpdate();
+                            ResultSet rs= pst.executeQuery();
+                            if (!rs.next()){
+                               is= JOptionPane.showConfirmDialog(null,"Your order is remaining to be Served are you sure to call waiter");
+                            }
                         }
+
                     }catch (Exception e){
                         JOptionPane.showMessageDialog(null,e.getMessage());
+                    }
+                    if(is==0) {
+
+                        String s = "Collect Rs. " + grandTotal;
+                        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                            String sql = "update currentorders set billstatus=? where orderid=?";
+                            try (PreparedStatement pst = con.prepareStatement(sql)) {
+                                pst.setString(1, s);
+                                pst.setDouble(2, orderId);
+                                pst.executeUpdate();
+                                JOptionPane.showMessageDialog(null,"Waiter is coming");
+
+                            }
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(null, e.getMessage());
+                        }
                     }
 
                 }
@@ -106,7 +128,7 @@ public class Bill extends JFrame {
 
         String url = "jdbc:mysql://localhost:3306/restro";
         try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
-            String sql="select * from currentorders where orderId=?";
+            String sql="select * from currentorders where orderId=? and status!='rejected' and status!='rejecteddisplayed'";
             try(PreparedStatement pst=con.prepareStatement(sql)){
                 pst.setDouble(1,orderId);
 
@@ -137,7 +159,7 @@ public class Bill extends JFrame {
             JOptionPane.showMessageDialog(null,e.getMessage());
         }
 
-        double grandTotal=0.0;
+
 
         for (HashMap.Entry<String,data> ditto:h.entrySet()){
             data d=ditto.getValue();

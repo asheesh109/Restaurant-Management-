@@ -7,10 +7,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Waiter {
+   static HashSet<Double> h=new HashSet<Double>();
     Waiter(){
         Font f = new Font("Calibri", Font.BOLD, 55);
         Font f1 = new Font("Calibri", Font.BOLD, 20);
@@ -55,13 +57,14 @@ public class Waiter {
         ordercontainer.setLayout(new BorderLayout(10,10));
         ordercontainer.add(ordertitle,BorderLayout.NORTH);
         ordercontainer.add(orderscroll,BorderLayout.CENTER);
-        ordercontainer.setPreferredSize(new Dimension(500,400));
+        ordercontainer.setPreferredSize(new Dimension(600,400));
 
 
         JPanel bills=new JPanel();
         bills.setLayout(new BoxLayout(bills,BoxLayout.Y_AXIS));
 
         JScrollPane billscroll=new JScrollPane();
+        billscroll.setBorder(panelborder);
         billscroll.setViewportView(bills);
 
         JLabel billtitle=new JLabel("Collect Bills",JLabel.CENTER);
@@ -81,7 +84,7 @@ public class Waiter {
 
 
         frame.add(title,BorderLayout.NORTH);
-        frame.add(box);
+        frame.add(box,BorderLayout.CENTER);
 
         java.util.Timer timer = new Timer();
 
@@ -100,17 +103,17 @@ public class Waiter {
                             String name=rs.getString("name");
                             int id=rs.getInt("id");
 
-                            JPanel row=new JPanel(new FlowLayout());
-                            row.setMaximumSize(new Dimension(500,50));
+                            JPanel row=new JPanel(new FlowLayout(FlowLayout.LEADING));
+                            row.setMaximumSize(new Dimension(650,69));
                             row.setBorder(new CompoundBorder(margin,panelborder));
 
-                            JLabel tableno=new JLabel("Table No:"+Integer.toString(Tableno));
+                            JLabel tableno=new JLabel("Table No:"+Integer.toString(Tableno),JLabel.LEFT);
                             tableno.setFont(f1);
                             tableno.setPreferredSize(new Dimension(100,30));
 
                             JLabel names=new JLabel(name.toUpperCase(),JLabel.CENTER);
                             names.setFont(f1);
-                            names.setPreferredSize(new Dimension(190,30));
+                            names.setPreferredSize(new Dimension(300,30));
 
                             JButton Served=new JButton("Served");
                             Served.setFont(f1);
@@ -155,6 +158,48 @@ public class Waiter {
                 catch(Exception e){
                     JOptionPane.showMessageDialog(null,e.getMessage());
 
+                }
+
+                try(Connection con=DriverManager.getConnection(url,"root","Shubham1s23@")){
+                    String querry="select * from currentorders where billstatus!='u' and billstatus!='collected'";
+                    try(PreparedStatement pst= con.prepareStatement(querry)){
+                        ResultSet rs=pst.executeQuery();
+
+                        while (rs.next()){
+
+                            double d=rs.getDouble("tableno");
+                            String s1=rs.getString("billstatus")+" from Table no "+d;
+                            double o=rs.getDouble("orderid");
+
+                            if(!h.contains(o)) {
+                                h.add(o);
+
+                                JPanel row = new JPanel(new FlowLayout());
+                                row.setMaximumSize(new Dimension(650, 69));
+
+                                JLabel info = new JLabel(s1, JLabel.LEFT);
+                                info.setPreferredSize(new Dimension(400, 50));
+                                info.setFont(f1);
+
+                                JButton collected = new JButton("Collected");
+//                                collected.setPreferredSize(new Dimension(150, 50));
+                                collected.setFont(f1);
+
+                                row.add(info);
+                                row.add(collected);
+                                row.setBorder(new CompoundBorder(margin, panelborder));
+
+                                bills.add(row);
+
+
+                                bills.revalidate();
+                                bills.repaint();
+                            }
+                        }
+                    }
+
+                }catch (Exception e){
+                    JOptionPane.showMessageDialog(null,e.getMessage());
                 }
             }
 

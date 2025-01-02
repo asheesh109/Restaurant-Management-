@@ -23,7 +23,7 @@ import java.util.TimerTask;
 
 
 class Customer {
-  final static int tableno=19;
+  final static int tableno=10;
    HashMap<String,Integer> h=new HashMap<String,Integer>();
    HashMap<String,JPanel> h1=new HashMap<String,JPanel>();
    HashMap<String,JPanel> panels=new HashMap<String,JPanel>();
@@ -115,6 +115,7 @@ class Customer {
                         ResultSet rs=pst.executeQuery();
                         StringBuilder s=new StringBuilder();
                         while (rs.next()){
+
                             if (s.isEmpty()){
                             s.append(rs.getString("name")+" ");
 
@@ -125,6 +126,7 @@ class Customer {
 
                         }
                         if (!s.isEmpty()){
+
                             JOptionPane.showMessageDialog(null," The orders "+s+"are not available now");
                             String querry="update currentorders set status='rejecteddisplayed' where orderId=? and status='rejected'";
                             try(PreparedStatement pst1=con.prepareStatement(querry)){
@@ -329,11 +331,22 @@ class Customer {
                     JPanel ppanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
                     ppanel.add(p);
                     ppanel.setPreferredSize(new Dimension(260, 20));
-                    JPanel bpanel = h1.getOrDefault(itemKey,new JPanel(new FlowLayout(FlowLayout.LEADING)));
+                    JPanel bpanel;
 
-                    bpanel.add(add);
-                    bpanel.add(quantity);
-                    bpanel.add(remove);
+
+
+                    if(h1.containsKey(itemKey)){
+                        bpanel=h1.get(itemKey);
+                    }
+                    else{
+                        bpanel=new JPanel(new FlowLayout(FlowLayout.LEADING));
+                        bpanel.add(add);
+                        bpanel.add(quantity);
+                        bpanel.add(remove);
+                    }
+
+//                    bpanel = h1.getOrDefault(itemKey,new JPanel(new FlowLayout(FlowLayout.LEADING)));
+
 
 
                     int savedQuantity = h.getOrDefault(itemKey, 0);
@@ -364,6 +377,7 @@ class Customer {
 
 
                                 int d=Integer.parseInt(quantity.getText());
+//                                JPanel buttonpanel=h1.get(itemKey);
                                 h.put(itemKey,d+1);
                                 h1.put(itemKey,bpanel);
                                 if(d==0){
@@ -426,6 +440,7 @@ class Customer {
                                 int d=Integer.parseInt(quantity.getText());
                                 d--;
                                 h.put(itemKey,d);
+                                h1.put(itemKey,bpanel);
                                 if(d==0){
                                     quantity.setText(Integer.toString(0));
                                     quantity.setVisible(false);
@@ -523,10 +538,18 @@ class Customer {
                             JPanel ppanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
                             ppanel.add(p);
                             ppanel.setPreferredSize(new Dimension(260, 20));
-                            JPanel bpanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
-                            bpanel.add(add);
-                            bpanel.add(quantity);
-                            bpanel.add(remove);
+                            JPanel bpanel ;
+                            if (h1.containsKey(names)){
+                               bpanel= h1.get(names);
+                            }
+                            else {
+                                bpanel=new JPanel(new FlowLayout(FlowLayout.LEADING));
+                                bpanel.add(add);
+                                bpanel.add(quantity);
+                                bpanel.add(remove);
+                            }
+
+
 
                             String itemKey = names;
                             int savedQuantity = h.getOrDefault(itemKey, 0);
@@ -552,6 +575,7 @@ class Customer {
                                     z->{
                                         int d=Integer.parseInt(quantity.getText());
                                         h.put(itemKey,d+1);
+                                        h1.put(itemKey,bpanel);
                                        if(d==0){
                                         quantity.setText(Integer.toString(d+1));
                                         quantity.setVisible(true);
@@ -612,6 +636,7 @@ class Customer {
                                         int d=Integer.parseInt(quantity.getText());
                                         d--;
                                         h.put(itemKey,d);
+                                        h1.put(itemKey,bpanel);
 
 
                                         if(d==0){
@@ -700,7 +725,7 @@ order.addActionListener(
                                                          pst1.setInt(3,quantity);
                                                          pst1.setString(4,"ordered");
                                                          pst1.setDouble(5,orderId);
-                                                         pst1.setString(6,"unknown");
+                                                         pst1.setString(6,"u");
                                                          pst1.executeUpdate();
                                                      }
                                                  }
@@ -732,6 +757,7 @@ order.addActionListener(
 
 
                 h.clear();
+                h1.clear();
                 for (JButton ditto:b){
                     if (ditto.getText().toLowerCase().equals(categoryname)) {
                         ditto.doClick();
@@ -779,6 +805,7 @@ order.addActionListener(
                   selectedItemsData.revalidate();
                   selectedItemsData.repaint();
                   h.clear();
+                  h1.clear();
                   for (JButton ditto:b){
                       ditto.doClick();
                       b.getFirst().doClick();
