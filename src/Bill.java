@@ -63,7 +63,7 @@ public class Bill extends JFrame {
         pay.addActionListener(
                 a->{
                     new Customer();
-                    dispose();
+                   dispose();
                 }
         );
 

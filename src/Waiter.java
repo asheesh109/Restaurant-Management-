@@ -159,11 +159,12 @@ public class Waiter {
                     JOptionPane.showMessageDialog(null,e.getMessage());
 
                 }
-
+                bills.removeAll();
                 try(Connection con=DriverManager.getConnection(url,"root","Shubham1s23@")){
                     String querry="select * from currentorders where billstatus!='u' and billstatus!='collected'";
                     try(PreparedStatement pst= con.prepareStatement(querry)){
                         ResultSet rs=pst.executeQuery();
+
 
                         while (rs.next()){
 
@@ -184,6 +185,25 @@ public class Waiter {
                                 JButton collected = new JButton("Collected");
 //                                collected.setPreferredSize(new Dimension(150, 50));
                                 collected.setFont(f1);
+
+                                collected.addActionListener(
+                                        a->{
+
+                                            try(Connection con1=DriverManager.getConnection(url,"root","Shubham1s23@")){
+                                               String sql="update currentorders set billstatus=? where orderid=?" ;
+                                               try(PreparedStatement pst1=con1.prepareStatement(sql)){
+                                                   pst1.setString(1,"collected");
+                                                   pst1.setDouble(2,o);
+                                                   pst1.executeUpdate();
+                                                   h.remove(o);
+                                                   JOptionPane.showMessageDialog(null,"Collected");
+                                                   row.setVisible(false);
+                                               }
+                                            }catch (Exception e){
+                                                JOptionPane.showMessageDialog(null,e.getMessage());
+                                            }
+                                        }
+                                );
 
                                 row.add(info);
                                 row.add(collected);

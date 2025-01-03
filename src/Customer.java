@@ -27,6 +27,7 @@ class Customer {
    HashMap<String,Integer> h=new HashMap<String,Integer>();
    HashMap<String,JPanel> h1=new HashMap<String,JPanel>();
    HashMap<String,JPanel> panels=new HashMap<String,JPanel>();
+
     Customer(){
 
         long uuidHash = UUID.randomUUID().hashCode();
