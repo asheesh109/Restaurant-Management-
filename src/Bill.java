@@ -26,9 +26,15 @@ public class Bill extends JFrame {
         title.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         String[] columnNames = {"Item name", "Quantity", "Price", "Total"};
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0){
+            @Override
+            public boolean isCellEditable(int row,int column){
+                return false;
+            }
+        };
         JTable table = new JTable(tableModel);
         table.setFont(tableFont);
+        table.getTableHeader().setReorderingAllowed(false);
         table.setRowHeight(30);
         table.getTableHeader().setFont(new Font("Calibri", Font.BOLD, 18));
         table.getTableHeader().setBackground(new Color(0, 102, 204));
@@ -119,6 +125,7 @@ public class Bill extends JFrame {
         bottomPanel.add(backButton);
         bottomPanel.add(pay);
         bottomPanel.add(pay1);
+
 
         Container c = getContentPane();
         c.setLayout(new BorderLayout(20, 20));

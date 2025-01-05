@@ -3,9 +3,16 @@ import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.sql.*;
 
+import java.time.LocalDate;
 import java.util.Vector;
+import com.google.*;
+import com.google.gson.Gson;
 
 class editMenu {
     editMenu(){
@@ -35,31 +42,72 @@ class editMenu {
 
         JButton add1=new JButton("Add item");
         add1.setFont(buttonFont);
-        add1.setPreferredSize(new Dimension(150,30));
+        add1.setPreferredSize(new Dimension(250,30));
 
 
         JButton delete=new JButton("Delete item");
         delete.setFont(buttonFont);
-        delete.setPreferredSize(new Dimension(150,30));
+        delete.setPreferredSize(new Dimension(250,30));
 
         JButton update=new JButton("Update price");
         update.setFont(buttonFont);
-        update.setPreferredSize(new Dimension(150,30));
+        update.setPreferredSize(new Dimension(250,30));
 
         JButton addcat=new JButton("Add category");
         addcat.setFont(buttonFont);
-        addcat.setPreferredSize(new Dimension(150,30));
+        addcat.setPreferredSize(new Dimension(250,30));
+
+        JButton getBill=new JButton("Today,s Orders");
+        getBill.setFont(buttonFont);
+        getBill.setPreferredSize(new Dimension(250,30));
 
 
 
         JPanel buttonPanel=new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER,10,10));
-        buttonPanel.setPreferredSize(new Dimension(180,100));
+        buttonPanel.setPreferredSize(new Dimension(300,100));
         buttonPanel.add(add1);
         buttonPanel.add(delete);
         buttonPanel.add(update);
         buttonPanel.add(addcat);
+        buttonPanel.add(getBill);
         buttonPanel.setBorder(panelborder);
+
+        getBill.addActionListener(
+                a-> {
+                    LocalDate date=LocalDate.now();
+                    String filename="orders"+date;
+                    Path p= Paths.get(filename);
+
+                    String url = "jdbc:mysql://localhost:3306/restro";
+                    try (Connection connection = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                        Files.createFile(p);
+                        String sql = "select * from currentorders where date(time)=curdate()";
+                        try (PreparedStatement pst = connection.prepareStatement(sql)) {
+                            ResultSet rs=pst.executeQuery();
+                            Gson gson=new Gson();
+
+                            while(rs.next()){
+                                int tableno=rs.getInt("tableno");
+                                String name=rs.getString("name");
+                                int quantity=rs.getInt("quantity");
+                                String status=rs.getString("status");
+                                Timestamp t=rs.getTimestamp("time");
+
+                                String result=gson.toJson(new Object[]{tableno,name,quantity,status,t});
+
+                                Files.write(p,result.getBytes());
+
+                            }
+
+
+                        }
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null, e.getMessage());
+                    }
+                }
+        );
+
 
         Label cat=new Label("Categories");
         cat.setFont(new Font("Futura", Font.BOLD, 40));
@@ -125,9 +173,15 @@ class editMenu {
 
         String[] columnNames={"Id","Name","Price"};
 
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0){
+            @Override
+            public boolean isCellEditable(int row,int column){
+                return false;
+            }
+        };
         JTable table = new JTable(tableModel);
         table.setFont(tableFont);
+        table.getTableHeader().setReorderingAllowed(false);
         table.setRowHeight(30);
         table.getTableHeader().setFont(new Font("Calibri", Font.BOLD, 18));
         table.getTableHeader().setBackground(Color.orange);
