@@ -83,7 +83,7 @@ class Customer {
 
 
         String url = "jdbc:mysql://localhost:3306/restro";
-        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
             String sql="select * from category order by id";
             try(PreparedStatement pst=con.prepareStatement(sql)){
                 ResultSet rs= pst.executeQuery();
@@ -108,7 +108,7 @@ class Customer {
         // Schedule the task to run every 1 second
         timer.scheduleAtFixedRate(new TimerTask() {
              public void run(){
-                try(Connection con=DriverManager.getConnection(url,"root","Shubham1s23@"))
+                try(Connection con=DriverManager.getConnection(url,"root","Ashish030406"))
                 {
                     String sql="select * from currentorders where orderId=? and status='rejected' ";
                     try(PreparedStatement pst=con.prepareStatement(sql)){
@@ -293,7 +293,7 @@ class Customer {
 //        Vector<item> items=new Vector<>();
 
         b.getFirst().setBackground(new Color(157, 77, 233));
-        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
             String sql = "SELECT * FROM menu WHERE category=? ORDER BY id";
             try (PreparedStatement pst = con.prepareStatement(sql)) {
                 menubox.add(Box.createVerticalStrut(10));
@@ -506,7 +506,7 @@ class Customer {
                 panels.clear();
                 menubox.removeAll(); // Clear old menu items
                 menubox.add(Box.createVerticalStrut(10));
-                try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
                     String sql = "SELECT * FROM menu WHERE category=? ORDER BY id";
                     try (PreparedStatement pst = con.prepareStatement(sql)) {
                         pst.setString(1, s1);
@@ -714,7 +714,7 @@ order.addActionListener(
             }
             else{
 
-                try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                try (Connection con1 = DriverManager.getConnection(url, "root", "Ashish030406")) {
                                               String querry="insert into currentorders(tableno,name,quantity,status,orderId,billstatus) values(?,?,?,?,?,?)";
                                                try(PreparedStatement pst1=con1.prepareStatement(querry)){
                                                  for (HashMap.Entry<String,Integer> ditto:h.entrySet()){
@@ -739,7 +739,7 @@ order.addActionListener(
                                            }
                 String randomkey=h.keySet().iterator().next();
                     String categoryname=new String();
-                try (Connection con1 = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                try (Connection con1 = DriverManager.getConnection(url, "root", "Ashish030406")) {
                     String querry="select * from menu where name=?";
                     try(PreparedStatement pst1=con1.prepareStatement(querry)){
                         pst1.setString(1,randomkey);

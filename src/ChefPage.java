@@ -67,7 +67,7 @@ public class ChefPage {
     void loadOrders() {
         String url = "jdbc:mysql://localhost:3306/restro";
         String user = "root";
-        String password = "Shubham1s23@";
+        String password = "Ashish030406";
 
         try (Connection con = DriverManager.getConnection(url, user, password)) {
             String sql = "SELECT id, name, quantity, status FROM currentorders WHERE status = 'ordered' OR status = 'Accepted'";
@@ -165,7 +165,7 @@ public class ChefPage {
 
             String url = "jdbc:mysql://localhost:3306/restro";
             String user = "root";
-            String password = "Shubham1s23@";
+            String password = "Ashish030406";
 
             try (Connection con = DriverManager.getConnection(url, user, password)) {
                 String updateSql = "UPDATE currentorders SET status = ? WHERE id = ?";
@@ -243,7 +243,7 @@ public class ChefPage {
 
             String url = "jdbc:mysql://localhost:3306/restro";
             String user = "root";
-            String password = "Shubham1s23@";
+            String password = "Ashish030406";
 
             try (Connection con = DriverManager.getConnection(url, user, password)) {
                 String updateSql = "UPDATE currentorders SET status = ? WHERE id = ?";

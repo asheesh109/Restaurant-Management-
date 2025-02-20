@@ -83,7 +83,7 @@ public class Bill extends JFrame {
                 a->{
                     int is=0;
                     String url = "jdbc:mysql://localhost:3306/restro";
-                    try(Connection connection=DriverManager.getConnection(url,"root","Shubham1s23@")){
+                    try(Connection connection=DriverManager.getConnection(url,"root","Ashish030406")){
                         String sql="select * from currentorders where orderid=? and status='finished'";
                         try(PreparedStatement pst=connection.prepareStatement(sql)){
                             pst.setDouble(1,orderId);
@@ -99,7 +99,7 @@ public class Bill extends JFrame {
                     if(is==0) {
 
                         String s = "Collect Rs. " + grandTotal;
-                        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+                        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
                             String sql = "update currentorders set billstatus=? where orderid=?";
                             try (PreparedStatement pst = con.prepareStatement(sql)) {
                                 pst.setString(1, s);
@@ -134,7 +134,7 @@ public class Bill extends JFrame {
         c.add(bottomPanel, BorderLayout.SOUTH);
 
         String url = "jdbc:mysql://localhost:3306/restro";
-        try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+        try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
             String sql="select * from currentorders where orderId=? and status!='rejected' and status!='rejecteddisplayed'";
             try(PreparedStatement pst=con.prepareStatement(sql)){
                 pst.setDouble(1,orderId);
@@ -171,7 +171,7 @@ public class Bill extends JFrame {
         for (HashMap.Entry<String,data> ditto:h.entrySet()){
             data d=ditto.getValue();
 
-            try (Connection con = DriverManager.getConnection(url, "root", "Shubham1s23@")) {
+            try (Connection con = DriverManager.getConnection(url, "root", "Ashish030406")) {
                 String sql="select price from menu where name=?";
                 try(PreparedStatement pst=con.prepareStatement(sql)){
                     pst.setString(1,ditto.getKey());

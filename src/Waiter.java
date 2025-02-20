@@ -92,7 +92,7 @@ public class Waiter {
 
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run(){
-                try(Connection con= DriverManager.getConnection(url,"root","Shubham1s23@"))
+                try(Connection con= DriverManager.getConnection(url,"root","Ashish030406"))
                 {
                     String sql="select * from currentorders where status='Completed'";
                     try(PreparedStatement pst=con.prepareStatement(sql)){
@@ -125,7 +125,7 @@ public class Waiter {
                             Served.addActionListener(
                                     a->{
                                         Served.setBackground(new Color(181, 56, 217));
-                                        try(Connection con1=DriverManager.getConnection(url,"root","Shubham1s23@")) {
+                                        try(Connection con1=DriverManager.getConnection(url,"root","Ashish030406")) {
                                             String querry = "update currentorders set status='finished' where name=? and id=?";
                                             try (PreparedStatement pst1 = con1.prepareStatement(querry)) {
                                                 pst1.setString(1, name);
@@ -160,7 +160,7 @@ public class Waiter {
 
                 }
                 bills.removeAll();
-                try(Connection con=DriverManager.getConnection(url,"root","Shubham1s23@")){
+                try(Connection con=DriverManager.getConnection(url,"root","Ashish030406")){
                     String querry="select * from currentorders where billstatus!='u' and billstatus!='collected'";
                     try(PreparedStatement pst= con.prepareStatement(querry)){
                         ResultSet rs=pst.executeQuery();
@@ -189,7 +189,7 @@ public class Waiter {
                                 collected.addActionListener(
                                         a->{
 
-                                            try(Connection con1=DriverManager.getConnection(url,"root","Shubham1s23@")){
+                                            try(Connection con1=DriverManager.getConnection(url,"root","Ashish030406")){
                                                String sql="update currentorders set billstatus=? where orderid=?" ;
                                                try(PreparedStatement pst1=con1.prepareStatement(sql)){
                                                    pst1.setString(1,"collected");
