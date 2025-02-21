@@ -76,7 +76,7 @@ class editMenu {
         getBill.addActionListener(
                 a-> {
                     LocalDate date=LocalDate.now();
-                    String filename="orders"+date;
+                    String filename="orders"+date+".json";
                     Path p= Paths.get(filename);
 
                     String url = "jdbc:mysql://localhost:3306/restro";
